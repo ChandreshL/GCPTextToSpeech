@@ -1,3 +1,16 @@
+/**
+ * 
+ * tutorial : https://cloud.google.com/text-to-speech/docs/quickstart-client-libraries
+ *            https://cloud.google.com/text-to-speech/
+ * 
+ * Chandresh Luhar
+ * 
+ * Set the env variable in powershell before running the code
+ * $env:GOOGLE_APPLICATION_CREDENTIALS="D:\\GCPprojects\\mytexttospeech-6c5ceb5d67ae.json"
+ * 
+ */
+
+
 const fs = require('fs');
 const util = require('util');
 
@@ -6,13 +19,17 @@ const textToSpeech = require('@google-cloud/text-to-speech');
 
 // Creates a client
 const client = new textToSpeech.TextToSpeechClient();
+// randomize the available german voices
+const voiceNames = ['de-DE-Wavenet-A', 'de-DE-Wavenet-B', 'de-DE-Wavenet-C', 'de-DE-Wavenet-D'];
+var currentVoice = voiceNames[Math.floor(Math.random() * voiceNames.length)];
 
+
+var filename = 'output.mp3';
 // The text to synthesize
 const text = 'Hello, world!';
 
-//randomize the available voices
-const voiceNames = ['de-DE-Wavenet-A', 'de-DE-Wavenet-B', 'de-DE-Wavenet-C', 'de-DE-Wavenet-D'];
-var currentVoice = voiceNames[Math.floor(Math.random() * voiceNames.length)];
+
+
 
 // Construct the request
 const request = {
@@ -20,7 +37,6 @@ const request = {
   
   // Select the language and SSML Voice Gender (optional)
   //voice: {languageCode: 'en-US', name: "en-US-Wavenet-D"},
-
   voice: {languageCode: 'de-DE', name: currentVoice},
 
   // Select the type of audio encoding
@@ -28,15 +44,13 @@ const request = {
 };
 
 async function SaveAudio(request) {
-  // Performs the Text-to-Speech request
   const [response] = await client.synthesizeSpeech(request);
-  // Write the binary audio content to a local file
   const writeFile = util.promisify(fs.writeFile);
-  await writeFile('output.mp3', response.audioContent, 'binary');
+  await writeFile(filename, response.audioContent, 'binary');
   console.log('Audio content written to file: output.mp3');
 }
 
+console.log("Sending request");
 SaveAudio(request);
 
-// Set the env variable
-// $env:GOOGLE_APPLICATION_CREDENTIALS="D:\\GCPprojects\\mytexttospeech-6c5ceb5d67ae.json"
+//console.log(request);
